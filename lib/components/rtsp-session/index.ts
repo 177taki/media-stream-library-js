@@ -42,6 +42,8 @@ export enum RTSP_METHOD {
   PLAY = 'PLAY',
   PAUSE = 'PAUSE',
   TEARDOWN = 'TEARDOWN',
+  GET_PARAMETER = 'GET_PARAMETER',
+  SET_PARAMETER = 'SET_PARAMETER',
 }
 
 const MIN_SESSION_TIMEOUT = 5 // minimum timeout for a rtsp session in seconds
@@ -467,6 +469,35 @@ export class RtspSession extends Tube {
       this._renewSessionInterval = null
     }
     this._dequeue()
+  }
+
+  get_parameter() {
+    if (this._sessionId === null || this._sessionId === undefined) {
+      throw new Error('rtsp: internal error')
+    }
+    this._enqueue({
+      method: RTSP_METHOD.GET_PARAMETER,
+      headers: {
+        Session: this._sessionId,
+        "Adjustable-Stream-Settings": "",
+      },
+      uri: this._sessionControlURL
+    })
+    this._dequeue()
+  }
+
+  set_parameter(fps = 0, compression = 30) {
+    if (this._sessionId === null || this._sessionId === undefined) {
+      throw new Error('rtsp: internal error')
+    }
+    this._enqueue({
+      method: RTSP_METHOD.SET_PARAMETER,
+      headers: {
+        Session: this._sessionId,
+        "Adjustable-Stream-Configuration": `compression=${compression},fps=${fps}`
+      }
+    })
+    this._dequeue
   }
 
   /**
