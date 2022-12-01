@@ -1,5 +1,7 @@
 const { pipelines, isRtcpBye } = window.mediaStreamLibrary
 
+localStorage.debug = '*'
+
 // force auth
 const authorize = async (host) => {
   // Force a login by fetching usergroup
@@ -81,5 +83,19 @@ const adjustButton = document.querySelector('#adjust')
 adjustButton.addEventListener('click', async (e) => {
   const fps = document.querySelector('#fps').value || 0
   const compression = document.querySelector('#compression').value || 30
+  const zstrength = document.querySelector('#zstrength').value || 10
   pipeline.rtsp.set_parameter(fps, compression)
+})
+
+const pauseButton = document.querySelector('#pause')
+pauseButton.addEventListener('click', async (e) => {
+  pipeline.rtsp.pause()
+})
+const stopButton = document.querySelector('#stop')
+stopButton.addEventListener('click', async (e) => {
+  pipeline.rtsp.stop()
+})
+const getparamButton = document.querySelector('#param')
+getparamButton.addEventListener('click', async (e) => {
+  pipeline.rtsp.get_parameter()
 })

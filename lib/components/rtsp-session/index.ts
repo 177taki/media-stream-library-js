@@ -219,6 +219,7 @@ export class RtspSession extends Tube {
         [RTSP_METHOD.SETUP]: { Blocksize: '64000' },
         [RTSP_METHOD.DESCRIBE]: { Accept: 'application/sdp' },
         [RTSP_METHOD.PAUSE]: {},
+        [RTSP_METHOD.SET_PARAMETER]: {},
       },
       headers,
     )
@@ -479,9 +480,11 @@ export class RtspSession extends Tube {
       method: RTSP_METHOD.GET_PARAMETER,
       headers: {
         Session: this._sessionId,
-        "Adjustable-Stream-Settings": "",
+        'Content-Type': 'text/parameters',
+        'Content-Length': '29',
+        '\r\n\r\nAdjustable-Stream-Settings': '',
       },
-      uri: this._sessionControlURL
+      uri: this._sessionControlURL,
     })
     this._dequeue()
   }
@@ -490,12 +493,18 @@ export class RtspSession extends Tube {
     if (this._sessionId === null || this._sessionId === undefined) {
       throw new Error('rtsp: internal error')
     }
+    const hdASC = '\r\n\r\nAdjustable-Stream-Configuration'
+    const valASC = `fps=${fps},compression=${compression}`
+    const lenASC = hdASC.length + valASC.length + 2
     this._enqueue({
       method: RTSP_METHOD.SET_PARAMETER,
       headers: {
         Session: this._sessionId,
-        "Adjustable-Stream-Configuration": `compression=${compression},fps=${fps}`
-      }
+        'Content-Type': 'text/parameters',
+        'Content-Length': lenASC.toString(),
+        '\r\n\r\nAdjustable-Stream-Configuration': valASC,
+      },
+      uri: this._sessionControlURL,
     })
     this._dequeue
   }
